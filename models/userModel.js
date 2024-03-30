@@ -15,7 +15,7 @@ const userSchema = new Schema(
       required: true,
     },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 //custom static signup method
@@ -23,11 +23,11 @@ const userSchema = new Schema(
 userSchema.statics.signup = async function (email, password) {
   //validation
   if (!email || !password) {
-    throw Error("ყველაფერი შეავსეთ");
+    throw Error("Fill in all fields");
   }
 
   if (!validator.isEmail(email)) {
-    throw Error("ასეთი იმეილი არ არსებობს");
+    throw Error("Not valid email");
   }
   if (
     !validator.isStrongPassword(password, {
@@ -45,12 +45,12 @@ userSchema.statics.signup = async function (email, password) {
       pointsForContainingSymbol: 10,
     })
   ) {
-    throw Error("პაროლი სუსტია");
+    throw Error("Weak password");
   }
 
   const exists = await this.findOne({ email });
   if (exists) {
-    throw Error("იმეილი უკვე გამოყენებულია");
+    throw Error("Email already in use");
   }
 
   const salt = await bcrypt.genSalt(10);
@@ -64,18 +64,18 @@ userSchema.statics.signup = async function (email, password) {
 
 userSchema.statics.login = async function (email, password) {
   if (!email || !password) {
-    throw Error("შევასეთ ყველაფერი");
+    throw Error("Fill in all fields");
   }
 
   const user = await this.findOne({ email });
   if (!user) {
-    throw Error("არასწორი ინფო");
+    throw Error("Wrong Credentials");
   }
 
   const match = await bcrypt.compare(password, user.password);
 
   if (!match) {
-    throw Error("არასწორი ინფო");
+    throw Error("Wrong credentials");
   }
 
   return user;
